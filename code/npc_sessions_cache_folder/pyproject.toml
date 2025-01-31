@@ -1,0 +1,221 @@
+[project]
+name = "npc_sessions_cache"
+version = "0.0.1"
+description = "Scripts, notebooks and plots that operate on NWB or NWB-like objects from `npc_sessions` in the cloud."
+authors = [
+    { name = "Ben Hardcastle", email = "ben.hardcastle@alleninstitute.org" },
+    { name = "Arjun Sridhar", email = "arjun.sridhar@alleninstitute.org" },
+    { name = "Ethan McBride", email = "ethan.mcbride@alleninstitute.org" },
+    { name = "Corbett Bennett", email = "corbettb@alleninstitute.org" },
+]
+dependencies = [
+    "ipykernel>=6.25.2",
+    "nbconvert>=7.9.2",
+    "traitlets<=5.9.0",
+    "ipympl>=0.9.3",
+    "ipywidgets>=8.1.0",
+    "npc-sessions>=0.0.251",
+    "npc-sync>=0.1.16",
+    "npc-lims>=0.1.174",
+    "dynamic-routing-analysis @ git+https://github.com/AllenInstitute/dynamic_routing_analysis",
+    "hvplot>=0.10.0",
+    "pynrrd>=1.0.0",
+    "matplotlib<=3.8.4",
+    "aind-session>=0.2.1",
+    "pyarrow>=14.0",
+    "eval-type-backport>=0.2.0",
+    "npc-samstim>=0.1.8",
+    "polars>=1.9.0",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+]
+
+[project.license]
+text = "MIT"
+
+[project.urls]
+Repository = "https://github.com/AllenInstitute/npc_sessions_cache"
+Issues = "https://github.com/AllenInstitute/npc_sessions_cache/issues"
+
+[project.scripts]
+write_dataframes = "npc_sessions_cache.scripts.write_dataframes:main"
+write_notebooks = "npc_sessions_cache.scripts.write_notebooks:main"
+write_cache = "npc_sessions_cache.scripts.write_sessions_to_cache:main"
+
+[tool.pdm]
+plugins = [
+    "pdm-bump",
+]
+[tool.pdm.resolution.overrides]
+polars = ">=0.2"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "ruff>=0.0.282",
+    "mypy>=1.4.1",
+    "pytest-cov>=4.1.0",
+    "black>=23.7.0",
+    "pytest-xdist>=3.3.1",
+]
+
+[tool.pdm.scripts]
+ruff = "ruff check src --fix-only"
+black = "black src"
+test = "pytest --cov --cov-report=xml"
+mypy = "mypy src --install-types --non-interactive"
+
+[tool.pdm.scripts.prebuild]
+composite = [
+    "mypy",
+    "test",
+    "black",
+    "ruff",
+]
+
+[tool.pdm.scripts.dryrun]
+composite = [
+    "prebuild",
+    "pdm publish --repository testpypi",
+]
+
+[tool.pdm.scripts.bumpver]
+composite = [
+    "pdm self add pdm-bump",
+    "pdm bump micro",
+]
+
+[tool.pdm.scripts.tag]
+composite = [
+    "pdm self add pdm-bump",
+    "pdm bump tag",
+]
+
+[tool.pdm.scripts.pub]
+composite = [
+    "prebuild",
+    "bumpver",
+    "pdm publish",
+]
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+
+[tool.setuptools.package-data]
+npc_sessions_cache = [
+    "py.typed",
+    "notebooks/*.ipynb",
+]
+
+[tool.ruff]
+fix = true
+ignore-init-module-imports = true
+select = [
+    "ANN",
+    "B",
+    "C",
+    "E",
+    "F",
+    "I",
+    "RUF100",
+    "N",
+    "UP",
+    "W",
+    "YTT",
+]
+extend-exclude = [
+    "tests",
+]
+src = [
+    "src",
+    "tests",
+]
+target-version = "py39"
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.black]
+target-version = [
+    "py39",
+]
+
+[tool.coverage.paths]
+source = [
+    "src",
+]
+
+[tool.coverage.run]
+branch = true
+source = [
+    "src",
+]
+
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
+skip_empty = true
+exclude_also = [
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "@(abc.)?abstractmethod",
+    "@typing.runtime_checkable",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+    "--doctest-modules",
+    "--ignore-glob=*scripts*,*examples*",
+    "--cov",
+    "--cov-report=xml",
+    "--cov-config=pyproject.toml",
+    "--doctest-glob=*README.md",
+    "-x",
+    "-n=auto",
+]
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "IGNORE_EXCEPTION_DETAIL",
+    "ELLIPSIS",
+]
+testpaths = [
+    "src",
+    "tests",
+]
+
+[tool.mypy]
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+disallow_any_unimported = false
+warn_return_any = false
+warn_unused_ignores = true
+no_implicit_optional = true
+show_error_codes = true
+ignore_missing_imports = true
+implicit_reexport = false
+exclude = [
+    "src/npc_sessions_cache/plots",
+    "src/npc_sessions_cache/scripts",
+]
+
+[build-system]
+requires = [
+    "setuptools>=61",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"

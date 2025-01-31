@@ -15,6 +15,13 @@
 			],
 			"install_software_properties_common": true
 		},
+		"conda": {
+			"packages": [
+				{
+					"name": "mscorefonts"
+				}
+			]
+		},
 		"pip3": {
 			"packages": [
 				{
@@ -22,8 +29,8 @@
 					"version": "1.1.3"
 				},
 				{
-					"name": "matplotlib",
-					"version": "3.9.2"
+					"name": "git+https://github.com/AllenInstitute/npc_sessions_cache#egg=npc-sessions-cache",
+					"version": "53a962c924812f3327314931fd3911bf10d8ee15"
 				},
 				{
 					"name": "numba",
@@ -55,7 +62,7 @@
 				},
 				{
 					"name": "zarr",
-					"version": "2.18.0"
+					"version": "2.17.2"
 				}
 			],
 			"options": {},

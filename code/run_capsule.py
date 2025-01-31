@@ -1,6 +1,7 @@
 # stdlib imports --------------------------------------------------- #
 import argparse
 import dataclasses
+import gc
 import json
 import functools
 import logging
@@ -21,6 +22,7 @@ import sklearn
 import pynwb
 import upath
 import zarr
+from npc_sessions_cache.figures.paper2 import fig3c
 
 import utils
 
@@ -90,26 +92,35 @@ def process_session(session_id: str, params: "Params", test: int = 0) -> None:
         logger.info(f"Skipping {session_id}: {exc!r}")
         return
     
-    # Get components from the nwb file:
-    trials_df = nwb.trials[:]
-    units_df = nwb.units[:]
-    
     # Process data here, with test mode implemented to break out of the loop early:
     logger.info(f"Processing {session_id} with {params.to_json()}")
-    results = {}
-    for structure, structure_df in units_df.groupby('structure'):
-        results[structure] = len(structure_df)
+    params.write_json(f'/results/params/{session_id}.json')
+    
+    # Get components from the nwb file:
+    units_df = nwb.units[:].query(params.units_table_query).sort_values('structure')
+    
+    for _, row in units_df.iterrows():
+        unit_id = row['unit_id']
+        structure = row['structure']
+        logger.info(f"Plotting {unit_id} ({structure})")
+        fig = fig3c.plot(unit_id, session=nwb, use_session_obj=True)
+        path = pathlib.Path(f'/results/fig3c/{structure}/fig3c_{unit_id}.png')
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=500)
+        fig.clf()
+        plt.close()
+        del fig
+        gc.collect()
+
         if test:
-            logger.info("TEST | Exiting after first structure")
+            logger.info("TEST | Exiting after first unit")
             break
 
     # Save data to files in /results
     # If the same name is used across parallel runs of this capsule in a pipeline, a name clash will
-    # occur and the pipeline will fail, so use session_id as filename prefix:
-    #   /results/<sessionId>.suffix
-    logger.info(f"Writing results for {session_id}")
-    np.savez(f'/results/{session_id}.npz', **results)
-    params.write_json(f'/results/{session_id}.json')
+    # occur and the pipeline will fail, so use session_id as filename prefix: /results/<sessionId>.suffix
+    # logger.info(f"Writing results for {session_id}")
+    # np.savez(f'/results/{session_id}.npz', **results)
 
 # define run params here ------------------------------------------- #
 
@@ -125,23 +136,8 @@ def process_session(session_id: str, params: "Params", test: int = 0) -> None:
 @dataclasses.dataclass
 class Params:
     session_id: str
-    
-    nUnitSamples: int = 20
-    unitSampleSize: int = 20
-    windowDur: float = 1
-    binSize: float = 1
-    nShuffles: int | str = 100
-    binStart: int = -windowDur
-    n_units: list = dataclasses.field(default_factory=lambda: [5, 10, 20, 40, 60, 'all'])
-    decoder_type: str | Literal['linearSVC', 'LDA', 'RandomForest', 'LogisticRegression'] = 'LogisticRegression'
-
-    @property
-    def bins(self) -> npt.NDArray[np.float64]:
-        return np.arange(self.binStart, self.windowDur+self.binSize, self.binSize)
-
-    @property
-    def nBins(self) -> int:
-        return self.bins.size - 1
+    unit_id: str | None = None
+    units_table_query: str = 'default_qc'
     
     def to_dict(self) -> dict[str, Any]:
         """dict of field name: value pairs, including values from property getters"""
@@ -206,7 +202,7 @@ def main():
     # run processing function for each session, with test mode implemented:
     for session_id in session_ids:
         try:
-            process_session(session_id, params=Params(session_id=session_id, **params), test=args.test, skip_existing=args.skip_existing)
+            process_session(session_id, params=Params(session_id=session_id, **params), test=args.test)
         except Exception as e:
             logger.exception(f'{session_id} | Failed:')
         else:
