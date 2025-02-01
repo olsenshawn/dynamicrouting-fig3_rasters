@@ -202,6 +202,7 @@ def main():
     
     # run processing function for each session, with test mode implemented:
     for session_id in session_ids:
+        params.pop('session_id')
         try:
             process_session(session_id, params=Params(session_id=session_id, **params), test=args.test)
         except Exception as e:
