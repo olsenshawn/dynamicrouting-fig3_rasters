@@ -138,7 +138,7 @@ def process_session(session_id: str, params: "Params", test: int = 0) -> None:
 class Params:
     session_id: str
     unit_id: str | None = None
-    units_table_query: str = 'default_qc & isi_violations_ratio<=0.5 & presence_ratio>=0.9​ & amplitude_cutoff<=0.1'
+    units_table_query: str = 'default_qc & isi_violations_ratio<=0.5 & presence_ratio>=0.9 & amplitude_cutoff<=0.1'
     
     def to_dict(self) -> dict[str, Any]:
         """dict of field name: value pairs, including values from property getters"""
