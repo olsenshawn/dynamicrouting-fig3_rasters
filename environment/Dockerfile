@@ -1,4 +1,4 @@
-# hash:sha256:10dfcc2ab38e90d97f26f79f0090aaacb745d5e0aaa818187a4ddc39f8984552
+# hash:sha256:dd1a9b86d7cd6af3489dd95e66a56ed99c8f3444082fe5f2e7426b628ea01773
 ARG REGISTRY_HOST
 FROM $REGISTRY_HOST/codeocean/mambaforge3:23.1.0-4-python3.10.12-ubuntu22.04
 
@@ -14,7 +14,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN conda install -y \
-        mscorefonts \
+        mscorefonts==0.0.1 \
     && conda clean -ya
 
 RUN pip3 install -U --no-cache-dir \

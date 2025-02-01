@@ -98,22 +98,23 @@ def process_session(session_id: str, params: "Params", test: int = 0) -> None:
     
     # Get components from the nwb file:
     units_df = nwb.units[:].query(params.units_table_query).sort_values('structure')
-    
-    for _, row in units_df.iterrows():
-        unit_id = row['unit_id']
-        structure = row['structure']
-        logger.info(f"Plotting {unit_id} ({structure})")
-        fig = fig3c.plot(unit_id, session=nwb, use_session_obj=True)
-        path = pathlib.Path(f'/results/fig3c/{structure}/fig3c_{unit_id}.png')
-        path.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(path, dpi=500)
-        fig.clf()
-        plt.close()
-        del fig
-        gc.collect()
 
+    plt.ioff()
+
+    for structure, structure_df in units_df.groupby('structure'):
+        logger.info(f"| {session_id} | Plotting {structure} units")
+        for unit_id in structure_df['unit_id'].values:
+            fig = fig3c.plot(unit_id, session=nwb, use_session_obj=True)
+            path = pathlib.Path(f'/results/fig3c/{session_id}/fig3c_{unit_id}.png')
+            path.parent.mkdir(parents=True, exist_ok=True)
+            fig.savefig(path, dpi=500)
+            fig.clf()
+            plt.close()
+
+            if test:
+                logger.info("TEST | Exiting after first unit")
+                break
         if test:
-            logger.info("TEST | Exiting after first unit")
             break
 
     # Save data to files in /results
@@ -137,7 +138,7 @@ def process_session(session_id: str, params: "Params", test: int = 0) -> None:
 class Params:
     session_id: str
     unit_id: str | None = None
-    units_table_query: str = 'default_qc'
+    units_table_query: str = 'default_qc & isi_violations_ratio<=0.5 & presence_ratio>=0.9​ & amplitude_cutoff<=0.1'
     
     def to_dict(self) -> dict[str, Any]:
         """dict of field name: value pairs, including values from property getters"""

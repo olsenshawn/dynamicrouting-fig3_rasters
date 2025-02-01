@@ -18,7 +18,8 @@
 		"conda": {
 			"packages": [
 				{
-					"name": "mscorefonts"
+					"name": "mscorefonts",
+					"version": "0.0.1"
 				}
 			]
 		},

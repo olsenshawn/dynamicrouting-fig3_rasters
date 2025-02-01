@@ -20,6 +20,24 @@
 			"default_value": "is_ephys \u0026 is_task \u0026 is_annotated \u0026 is_production \u0026 issues==\"[]\""
 		},
 		{
+			"id": "kPnRNd9FoQDfLvPn",
+			"name": "units_table_query",
+			"param_name": "units_table_query",
+			"type": "text",
+			"value_type": "string",
+			"default_value": "default_qc \u0026 isi_violations_ratio\u003c=0.5 \u0026 presence_ratio\u003e=0.9​ \u0026 amplitude_cutoff\u003c=0.1"
+		},
+		{
+			"id": "P5tTZI1ybbvI3uxI",
+			"name": "update_packages_from_source",
+			"param_name": "update_packages_from_source",
+			"description": "If 1, auto-updates package(s) (e.g. dynamic-routing-analysis) on each run. Disable for quicker testing",
+			"type": "text",
+			"value_type": "integer",
+			"default_value": "0",
+			"maximum": 1
+		},
+		{
 			"id": "HzuW2S8dqcVV1ML7",
 			"name": "logging_level",
 			"param_name": "logging_level",
@@ -36,16 +54,6 @@
 			"type": "text",
 			"value_type": "integer",
 			"default_value": "1",
-			"maximum": 1
-		},
-		{
-			"id": "P5tTZI1ybbvI3uxI",
-			"name": "update_packages_from_source",
-			"param_name": "update_packages_from_source",
-			"description": "If 1, auto-updates package(s) (e.g. dynamic-routing-analysis) on each run. Disable for quicker testing",
-			"type": "text",
-			"value_type": "integer",
-			"default_value": "0",
 			"maximum": 1
 		},
 		{

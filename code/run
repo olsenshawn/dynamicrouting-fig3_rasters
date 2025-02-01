@@ -9,7 +9,7 @@ echo "Updating package(s) from source"
 export PIP_ROOT_USER_ACTION=ignore
 python -m pip install -U pip -q
 
-export package=dynamic_routing_analysis    
+export package=npc_sessions_cache    
 
 git clone https://github.com/AllenInstitute/$package
 cd $package
