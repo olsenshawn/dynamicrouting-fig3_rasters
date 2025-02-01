@@ -202,9 +202,9 @@ def main():
     
     # run processing function for each session, with test mode implemented:
     for session_id in session_ids:
-        params.pop('session_id')
+        params['session_id']=session_id
         try:
-            process_session(session_id, params=Params(session_id=session_id, **params), test=args.test)
+            process_session(session_id, params=Params(**params), test=args.test)
         except Exception as e:
             logger.exception(f'{session_id} | Failed:')
         else:
